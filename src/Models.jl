@@ -30,16 +30,17 @@ abstract type Model end
 """
    fit(::Template, output, input) -> Model
 
-Fit the `Template` to the `output` and `input` data and return a trained `Model`.
+Fit the [`Template`](@ref) to the `output` and `input` data and return a trained
+[`Model`](@ref).
 """
 function fit end
 
 """
     predict(::Model, input)
 
-Predict targets for the provided `input` and `Model`.
+Predict targets for the provided `input` and [`Model`](@ref).
 
-Returns a predictive distribution or point estimates depending on the `Model`.
+Returns a predictive distribution or point estimates depending on the [`Model`](ref).
 """
 function predict end
 

@@ -23,13 +23,13 @@ purposes. It should be defined (before fitting) with a `predictor`, which can be
 mutating the field.
 
 ## Fields
-- `predictor::Function`: predicts the outputs of the FakeModel.
+- `predictor::Function`: predicts the outputs of the [`FakeModel`](@ref).
    It is `(num_variates, inputs) -> outputs`, where the `num_variates` will be memorized
    during `fit`.
 
 ## Methods
-- `fit` does not learn anything it just creates an instance of the model
-- `predict` applies the `predictor` to the inputs
+- [`fit`](@ref) does not learn anything, it just creates an instance of the corresponding [`Model`](@ref).
+- [`predict`](@ref) applies the `predictor` to the inputs.
 """
 mutable struct FakeTemplate{E<:EstimateTrait, O<:OutputTrait} <: Template
     predictor::Function
