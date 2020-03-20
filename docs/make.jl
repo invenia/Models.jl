@@ -1,19 +1,24 @@
-using Documenter, Models
+using Documenter
+using Models
+using Models.TestUtils
 
 makedocs(;
     modules=[Models],
-    format=Documenter.HTML(),
+    format=Documenter.HTML(;
+        prettyurls=false,
+        assets=[
+            "assets/invenia.css",
+        ],
+    ),
     pages=[
-        "Home" => "index.md",
+        "Index" => "index.md",
+        "API" => "api.md",
+        "Design" => "design.md",
+        "TestUtils" => "testutils.md",
     ],
     repo="https://gitlab.invenia.ca/invenia/Models.jl/blob/{commit}{path}#L{line}",
     sitename="Models.jl",
     authors="Invenia Technical Computing Corporation",
-    assets=[
-        "assets/invenia.css",
-        "assets/logo.png",
-    ],
     strict=true,
-    html_prettyurls=false,
-    checkdocs=:none,
+    checkdocs=:exports,
 )
