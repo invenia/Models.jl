@@ -2,12 +2,12 @@
 
 ## Why does this package exist?
 
-[Models.jl](https://github.com/invenia/Models.jl) defines the `Template` and `Model` types as well as a common API for constructing a generic model in downstream packages, including:
+[Models.jl](https://github.com/invenia/Models.jl) defines the [`Template`](@ref) and [`Model`](@ref) types as well as a common API for constructing a generic model in downstream packages, including:
 
-* Calling `fit` on a `Template`.
-* Calling `predict` on a `Model`.
-* Assigning traits such as `EstimateTrait` and `OutputTrait`.
-* Testing interfaces and downstream dependencies with `TestUtils`.
+* Calling [`fit`](@ref) on a [`Template`](@ref).
+* Calling [`predict`](@ref) on a [`Model`](@ref).
+* Assigning traits such as [`EstimateTrait`](@ref) and [`OutputTrait`](@ref).
+* Testing interfaces and downstream dependencies with [`TestUtils`](@ref).
 
 ## Contents
 ```@contents
