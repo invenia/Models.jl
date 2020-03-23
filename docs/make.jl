@@ -22,3 +22,8 @@ makedocs(;
     strict=true,
     checkdocs=:exports,
 )
+
+deploydocs(;
+    repo="github.com/invenia/Models.jl",
+    push_preview=true,
+)
