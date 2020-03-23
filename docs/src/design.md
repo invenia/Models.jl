@@ -1,4 +1,4 @@
-## Design Documentation
+# Design
 
 This page details the key features of the design of [Models.jl](https://github.com/invenia/Models.jl), which exists to solve the issue highlighted by following quote:
 
@@ -15,7 +15,7 @@ This page details the key features of the design of [Models.jl](https://github.c
 As such, the most important thing is that it itself has a common API.
 Here are some facts about that API:
 
-### Models and Templates
+## Models and Templates
 
 A [`Model`](@ref) is an object that can be used to make predictions via calling [`predict`](@ref).
 A [`Template`](@ref) is an object that can create a [`Model`](@ref) by being [`fit`](@ref) to some data.
@@ -26,7 +26,7 @@ The [`Template`](@ref) based API is superior to these as it means [`fit`](@ref) 
 One does not have to carry both a [`Model`](@ref) type, and a varying collection of keyword arguments, which would get complicated when composing wrapper models.
 
 
-### Calling fit and predict
+## Calling `fit` and `predict`
 
 ```julia
 model = StatsBase.fit(
@@ -53,7 +53,7 @@ Important facts about [`fit`](@ref) and [`predict`](@ref):
  - [`fit`](@ref) always accepts a `weights` argument. If the underlying [`Model`](@ref) does not support weighted fitting, then [`fit`](@ref) should throw and error if the weights that passed in and are not all equal.
  - [`fit`](@ref)/[`predict`](@ref) take no keyword arguments, or any other arguments except the ones shown.
 
-### Traits
+## Traits
 
 This package largely avoids using complicated abstract types, or relying on a [`Model`](@ref) having a particular abstract type.
 Instead we use [traits](https://invenia.github.io/blog/2019/11/06/julialang-features-part-2/) to determine [`Model`](@ref) behavior.
