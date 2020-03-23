@@ -1,8 +1,6 @@
 ## Design Documentation
 
-This page details the key features of the design of BaselineModels.
-
-BaselineModels exists to solve the issue highlighted by following quote:
+This page details the key features of the design of `Models.jl`, which exists to solve the issue highlighted by following quote:
 
 > ML researchers tend to develop general purpose solutions as self-contained packages.
 > A wide variety of these are available as open-source packages ...
@@ -13,22 +11,22 @@ BaselineModels exists to solve the issue highlighted by following quote:
 
 -- [Sculley et al 2015](https://papers.nips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems)
 
-BaselineModels provides a common API for mostly preexisting models to allow them to all be used in the same way.
+`Models.jl` provides a common API for mostly preexisting models to allow them to all be used in the same way.
 As such, the most important thing is that it itself has a common API.
 Here are some facts about that API:
 
 ### Models and Templates
 
-A **model** is an object that can be used to make predictions via calling `predict`.
-A **template** is an object that can create a *model* by being `fit` to some data.
+A `Model` is an object that can be used to make predictions via calling `predict`.
+A `Template` is an object that can create a `Model` by being `fit` to some data.
 
-All information about how to perform `fit`, such as hyper-parameters, is stored inside the *template*.
-This is different from some other APIs which might for example pass those as keyword arguments to `fit`.
-The template based API is superior to these as it means `fit` is always the same.
-One does not have to carry both a model type, and a varying collection of keyword arguments, which would get complicated when composing wrapper models.
+All information about how to perform `fit`, such as hyper-parameters, is stored inside the `Template`.
+This is different from some other APIs which might, for example, pass hyper-parameters as keyword arguments to `fit`.
+The `Template` based API is superior to these as it means `fit` is always the same.
+One does not have to carry both a `Model` type, and a varying collection of keyword arguments, which would get complicated when composing wrapper models.
 
 
-### `fit` and `predict`
+### Calling fit and predict
 
 ```julia
 model = StatsBase.fit(
@@ -46,30 +44,30 @@ outputs = StatsBase.predict(
 )::AbstractMatrix  # always Variates x Observations
 ```
 
-`fit` takes in a *template* and some *data* and returns a `Model` that has been fit to the data.
-`predict` takes a `Model`  (that has been `fit` from a *template*) and produces a predicted output.
+`fit` takes in a `Template` and some *data* and returns a `Model` that has been fit to the data.
+`predict` takes a `Model`  (that has been `fit` from a `Template`) and produces a predicted output.
 
 Important facts about `fit` and `predict`:
  - `outputs` and `inputs` always have observations as the second dimension -- even if it is  [`SingleOutput`](@ref) (that just means that it will be a `1 x num_obs` output. (See [Docs on Julia being column-major](https://docs.julialang.org/en/v1/manual/performance-tips/#Access-arrays-in-memory-order,-along-columns-1))
  - The functions must accept any `AbstractMatrix` for the `inputs` and `outputs` (`fit` only). If the underlying implementation needs a plain dense `Matrix` then `fit`/`predict` should perform the conversion.
- - `fit` always accepts a `weights` argument. If the underlying model does not support weighted fitting, then `fit` should throw and error if the weights that passed in and are not all equal.
+ - `fit` always accepts a `weights` argument. If the underlying `Model` does not support weighted fitting, then `fit` should throw and error if the weights that passed in and are not all equal.
  - `fit`/`predict` take no keyword arguments, or any other arguments except the ones shown.
 
 ### Traits
 
-This package largely avoids using complicated abstract types, or relying on a model having a particular abstract type.
-Instead we use [traits](https://invenia.github.io/blog/2019/11/06/julialang-features-part-2/) to determine model behavior.
+This package largely avoids using complicated abstract types, or relying on a `Model` having a particular abstract type.
+Instead we use [traits](https://invenia.github.io/blog/2019/11/06/julialang-features-part-2/) to determine `Model` behavior.
 
-Here are the current model traits in use and their possible values:
- - `estimate_type` -  determines what kinds of estimates the model outputs.
+Here are the current `Model` traits in use and their possible values:
+ - `estimate_type` -  determines what kinds of estimates the `Model` outputs.
    - `PointEstimate`: Predicts point-estimates of the most likely values.
    - `DistributionEstimate`: Estimates distributions over possible values.
- - `output_type` - determines how many output variates a model can learn
+ - `output_type` - determines how many output variates a `Model` can learn
    - `SingleOutput`: Fits and predicts on a single output only.
    - `MultiOutput`: Fits and predicts on multiple outputs at a time.
 
-The traits always agree between the model and the template.
-Every model and template should define all the listed traits.
+The traits always agree between the `Model` and the `Template`.
+Every `Model` and `Template` should define all the listed traits.
 
 This package uses traits implemented such that the trait function returns an `abstract type` (rather than an instance).
 That means to check a trait one uses:
