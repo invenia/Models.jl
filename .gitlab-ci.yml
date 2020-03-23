@@ -1,4 +1,0 @@
----
-include:
-  - project: infrastructure/gitlab-ci-helper
-    file: /templates/julia.yml

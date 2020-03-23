@@ -1,7 +1,7 @@
-@testset "traits.jl" begin
+struct DummyTemplate <: Template end
+struct DummyModel <: Model end
 
-    struct DummyTemplate <: Template end
-    struct DummyModel <: Model end
+@testset "traits.jl" begin
 
     estimates = (PointEstimate, DistributionEstimate)
     outputs = (SingleOutput, MultiOutput)

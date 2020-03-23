@@ -12,8 +12,8 @@ export OutputTrait, SingleOutput, MultiOutput
 
 A Template is an untrained [`Model`](@ref) that can be [`fit`](@ref) to data.
 Defined as well are the traits:
-- [`output_type`](@ref): SingleOutput or MultiOutput
-- [`estimate_type`](@ref): PointEstimate or DistributionEstimate
+- [`output_type`](@ref): [`SingleOutput`](@ref) or [`MultiOutput`](@ref).
+- [`estimate_type`](@ref): [`PointEstimate`](@ref) or [`DistributionEstimate`](@ref).
 """
 abstract type Template end
 
@@ -22,8 +22,8 @@ abstract type Template end
 
 A Model is a trained [`Template`](@ref) with which one can [`predict`](@ref) on inputs.
 Defined as well are the traits:
-- [`output_type`](@ref): SingleOutput or MultiOutput
-- [`estimate_type`](@ref): PointEstimate or DistributionEstimate
+- [`output_type`](@ref): [`SingleOutput`](@ref) or [`MultiOutput`](@ref).
+- [`estimate_type`](@ref): [`PointEstimate`](@ref) or [`DistributionEstimate`](@ref).
 """
 abstract type Model end
 
@@ -40,7 +40,7 @@ function fit end
 
 Predict targets for the provided `input` and [`Model`](@ref).
 
-Returns a predictive distribution or point estimates depending on the [`Model`](ref).
+Returns a predictive distribution or point estimates depending on the [`Model`](@ref).
 """
 function predict end
 
