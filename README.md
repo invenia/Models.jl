@@ -1,5 +1,8 @@
 # Models
 
+[![Stable](https://img.shields.io/badge/docs-latest-blue.svg)](https://invenia.github.io/Models.jl/stable/)
+[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://invenia.github.io/Models.jl/dev/)
+
 [![Build Status](https://travis-ci.com/invenia/Models.jl.svg?branch=master)](https://travis-ci.com/invenia/Models.jl)
 [![Codecov](https://codecov.io/gh/invenia/Models.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/invenia/Models.jl)
 
