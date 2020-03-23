@@ -1,9 +1,8 @@
 # Models
 
 [![Build Status](https://travis-ci.com/invenia/Models.jl.svg?branch=master)](https://travis-ci.com/invenia/Models.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/invenia/Models.jl?svg=true)](https://ci.appveyor.com/project/invenia/Models-jl)
 [![Codecov](https://codecov.io/gh/invenia/Models.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/invenia/Models.jl)
-[![PkgEval](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/N/Models.svg)](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/report.html)
+
 [![code style blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
 ## Why does this package exist?

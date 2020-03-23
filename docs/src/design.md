@@ -1,6 +1,6 @@
 ## Design Documentation
 
-This page details the key features of the design of [`Models.jl`](https://github.com/invenia/Models.jl), which exists to solve the issue highlighted by following quote:
+This page details the key features of the design of [Models.jl](https://github.com/invenia/Models.jl), which exists to solve the issue highlighted by following quote:
 
 > ML researchers tend to develop general purpose solutions as self-contained packages.
 > A wide variety of these are available as open-source packages ...
@@ -11,7 +11,7 @@ This page details the key features of the design of [`Models.jl`](https://github
 
 -- [Sculley et al 2015](https://papers.nips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems)
 
-[`Models.jl`](https://github.com/invenia/Models.jl) provides a common API for mostly preexisting models to allow them to all be used in the same way.
+[Models.jl](https://github.com/invenia/Models.jl) provides a common API for mostly preexisting models to allow them to all be used in the same way.
 As such, the most important thing is that it itself has a common API.
 Here are some facts about that API:
 
