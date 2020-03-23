@@ -16,7 +16,7 @@ makedocs(;
         "Design" => "design.md",
         "TestUtils" => "testutils.md",
     ],
-    repo="https://gitlab.invenia.ca/invenia/Models.jl/blob/{commit}{path}#L{line}",
+    repo="https://github.com/invenia/Models.jl/blob/{commit}{path}#L{line}"
     sitename="Models.jl",
     authors="Invenia Technical Computing Corporation",
     strict=true,
