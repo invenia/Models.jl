@@ -1,6 +1,6 @@
 # Design
 
-This page details the key features of the design of [Models.jl](https://github.com/invenia/Models.jl), which exists to solve the issue highlighted by following quote:
+This page details the key features of the design of [Models.jl](https://github.com/invenia/Models.jl), which exists to solve the issue highlighted by the following quote:
 
 > ML researchers tend to develop general purpose solutions as self-contained packages.
 > A wide variety of these are available as open-source packages ...
