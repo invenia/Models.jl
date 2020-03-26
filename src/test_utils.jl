@@ -51,7 +51,7 @@ function FakeTemplate{PointEstimate, SingleOutput}()
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput}()
+    FakeTemplate{PointEstimate, MultiOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict a vector of 0s for each observation.
 The input and output will have the same dimension.
@@ -66,7 +66,7 @@ function FakeTemplate{PointEstimate, MultiOutput}()
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput}()
+    FakeTemplate{DistributionEstimate, SingleOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict a univariate normal posterior
 distribution (with zero mean and unit standard deviation) for each observation.
@@ -80,7 +80,7 @@ function FakeTemplate{DistributionEstimate, SingleOutput}()
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput}()
+    FakeTemplate{DistributionEstimate, MultiOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal posterior
 distribution (with zero-vector mean and identity covariance matrix) for each observation.

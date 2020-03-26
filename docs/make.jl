@@ -12,8 +12,8 @@ makedocs(;
     ),
     pages=[
         "Index" => "index.md",
-        "API" => "api.md",
         "Design" => "design.md",
+        "API" => "api.md",
         "TestUtils" => "testutils.md",
     ],
     repo="https://github.com/invenia/Models.jl/blob/{commit}{path}#L{line}",
