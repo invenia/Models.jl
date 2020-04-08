@@ -32,7 +32,7 @@ abstract type Model end
 
 Fit the [`Template`](@ref) to the `output` and `input` data and return a trained
 [`Model`](@ref).
-Convention is that `weights` defaults to `uweights(Float32, size(outputs, 2))``
+Convention is that `weights` defaults to `StatsBase.uweights(Float32, size(outputs, 2))`
 """
 function fit end
 
@@ -46,17 +46,18 @@ Returns a predictive distribution or point estimates depending on the [`Model`](
 function predict end
 
 """
-    submodels(model|template)
+    submodels(::Union{Template, Model})
 
-Returns all submodels within a multistage model/template.
+Return all submodels within a multistage model/template.
+
 Submodels are models within a model that have their own inputs (which may or may not be
-combined whith outputs of earlier models, before actually inputting them).
+combined with outputs of _earlier_ submodels, before actually being passed as input to the submodel).
 Such multistage models take a tuple of inputs (which may be nested if the submodel itself
 has submodels).
-The order of inner models return by `submodels` is as per the order of the inputs in the
+The order of submodels returned by `submodels` is as per the order of the inputs in the
 tuple.
 
-For single-stage models, (i.e. ones that simply take a matrix as input), this returns a
+For single-stage models, (i.e. ones that simply take a matrix as input), this returns an
 empty tuple.
 Wrapper models which do not expose their inner models to seperate inputs, including ones
 that only wrap a single model, should **not** define `submodels` as they are
