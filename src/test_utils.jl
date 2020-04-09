@@ -102,11 +102,11 @@ mutable struct FakeModel{E<:EstimateTrait, O<:OutputTrait} <: Model
     num_variates::Int
 end
 
-estimate_type(::FakeModel{E, O}) where {E, O} = E
-output_type(::FakeModel{E, O}) where {E, O} = O
+Models.estimate_type(::Type{<:FakeModel{E, O}}) where {E, O} = E
+Models.output_type(::Type{<:FakeModel{E, O}}) where {E, O} = O
 
-estimate_type(::FakeTemplate{E, O}) where {E, O} = E
-output_type(::FakeTemplate{E, O}) where {E, O} = O
+Models.estimate_type(::Type{<:FakeTemplate{E, O}}) where {E, O} = E
+Models.output_type(::Type{<:FakeTemplate{E, O}}) where {E, O} = O
 
 function StatsBase.fit(
     template::FakeTemplate{E, O},
@@ -122,22 +122,24 @@ end
 StatsBase.predict(m::FakeModel, inputs) = m.predictor(m.num_variates, inputs)
 
 """
-    test_interface(temp::Template; inputs=rand(5, 5), outputs=rand(5, 5))
+    test_interface(template::Template; inputs=rand(5, 5), outputs=rand(5, 5))
 
 Test that subtypes of [`Template`](@ref) and [`Model`](@ref) implement the expected API.
 Can be used as an initial test to verify the API has been correctly implemented.
 
 Returns the predictions of the `Model`.
 """
-function test_interface(temp::Template; kwargs...)
-    return test_interface(temp, estimate_type(temp), output_type(temp); kwargs...)
+function test_interface(template::Template; kwargs...)
+    @testset "Models API Interface Test: $(nameof(typeof(template)))" begin
+        return test_interface(template, estimate_type(template), output_type(template); kwargs...)
+    end
 end
 
 function test_interface(
-    temp::Template, ::Type{PointEstimate}, ::Type{SingleOutput};
+    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput};
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
-    predictions = test_common(temp, inputs, outputs)
+    predictions = test_common(template, inputs, outputs)
 
     @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
     @test size(predictions) == size(outputs)
@@ -145,71 +147,79 @@ function test_interface(
 end
 
 function test_interface(
-    temp::Template, ::Type{PointEstimate}, ::Type{MultiOutput};
+    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput};
     inputs=rand(5, 5), outputs=rand(2, 5),
 )
-    predictions = test_common(temp, inputs, outputs)
+    predictions = test_common(template, inputs, outputs)
     @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
     @test size(predictions) == size(outputs)
 end
 
 function test_interface(
-    temp::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput};
+    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput};
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
-    predictions = test_common(temp, inputs, outputs)
+    predictions = test_common(template, inputs, outputs)
     @test predictions isa Vector{<:Normal{<:Real}}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
 end
 
 function test_interface(
-    temp::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput};
+    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput};
     inputs=rand(5, 5), outputs=rand(3, 5)
 )
-    predictions = test_common(temp, inputs, outputs)
+    predictions = test_common(template, inputs, outputs)
     @test predictions isa Vector{<:MultivariateNormal{<:Real}}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
 end
 
-function test_common(temp, inputs, outputs)
+function test_names(template, model)
+    template_type_name = string(nameof(typeof(template)))
+    template_base_name_match = match(r"(.*)Template", template_type_name)
+    @test template_base_name_match !== nothing  # must have Template suffix
 
-    model = fit(temp, outputs, inputs)
+    model_type_name = string(nameof(typeof(model)))
+    model_base_name_match = match(r"(.*)Model", model_type_name)
+    @test model_base_name_match !== nothing  # must have Model suffix
 
-    @test temp isa Template
+    # base_name must agreee
+    @test model_base_name_match[1] == template_base_name_match[1]
+end
+
+function test_common(template, inputs, outputs)
+
+    model = fit(template, outputs, inputs)
+
+    @test template isa Template
     @test model isa Model
 
     @testset "type names" begin
-        template_type_name = string(nameof(typeof(temp)))
-        template_base_name_match = match(r"(.*)Template", template_type_name)
-        @test template_base_name_match !== nothing  # must have Template suffix
-
-        model_type_name = string(nameof(typeof(model)))
-        model_base_name_match = match(r"(.*)Model", model_type_name)
-        @test model_base_name_match !== nothing  # must have Model suffix
-
-        # base_name must agreee
-        @test model_base_name_match[1] == template_base_name_match[1]
+        test_names(template, model)
     end
 
     @testset "test fit/predict errors" begin
-        @test_throws MethodError predict(temp, inputs)
-        @test_throws MethodError fit(model, outputs, inputs)
+        @test_throws MethodError predict(template, inputs)  # can only predict on a model
+        @test_throws MethodError fit(model, outputs, inputs)  # can only fit a template
     end
 
     @testset "test weights can also be passed" begin
         weights = uweights(Float32, size(outputs, 2))
-        model_weights = fit(temp, outputs, inputs, weights)
+        model_weights = fit(template, outputs, inputs, weights)
     end
 
     @testset "traits" begin
-        @test estimate_type(temp) == estimate_type(model)
-        @test output_type(temp) == output_type(model)
+        @test estimate_type(template) == estimate_type(model)
+        @test output_type(template) == output_type(model)
+    end
+
+    @testset "submodels" begin
+        @test length(submodels(template)) == length(submodels(model))
+        foreach(test_names, submodels(template), submodels(model))
     end
 
     predictions = predict(model, inputs)
-
     return predictions
 end
 

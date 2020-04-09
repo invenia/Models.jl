@@ -3,7 +3,7 @@ module Models
 import StatsBase: fit, predict
 
 export Model, Template
-export fit, predict, estimate_type, output_type
+export fit, predict, submodels, estimate_type, output_type
 export EstimateTrait, PointEstimate, DistributionEstimate
 export OutputTrait, SingleOutput, MultiOutput
 
@@ -28,10 +28,11 @@ Defined as well are the traits:
 abstract type Model end
 
 """
-   fit(::Template, output, input) -> Model
+   fit(::Template, output, input, [weights]) -> Model
 
 Fit the [`Template`](@ref) to the `output` and `input` data and return a trained
 [`Model`](@ref).
+Convention is that `weights` defaults to `StatsBase.uweights(Float32, size(outputs, 2))`
 """
 function fit end
 
@@ -43,6 +44,27 @@ Predict targets for the provided `input` and [`Model`](@ref).
 Returns a predictive distribution or point estimates depending on the [`Model`](@ref).
 """
 function predict end
+
+"""
+    submodels(::Union{Template, Model})
+
+Return all submodels within a multistage model/template.
+
+Submodels are models within a model that have their own inputs (which may or may not be
+combined with outputs of _earlier_ submodels, before actually being passed as input to the submodel).
+Such multistage models take a tuple of inputs (which may be nested if the submodel itself
+has submodels).
+The order of submodels returned by `submodels` is as per the order of the inputs in the
+tuple.
+
+For single-stage models, (i.e. ones that simply take a matrix as input), this returns an
+empty tuple.
+Wrapper models which do not expose their inner models to seperate inputs, including ones
+that only wrap a single model, should **not** define `submodels` as they are
+(from the outside API perspective) single-stage models.
+"""
+submodels(::Union{Template, Model}) = ()
+
 
 include("traits.jl")
 include("test_utils.jl")
