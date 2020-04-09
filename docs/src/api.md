@@ -10,6 +10,7 @@ Model
 ```@docs
 fit
 predict
+submodels
 estimate_type
 output_type
 ```
