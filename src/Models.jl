@@ -1,7 +1,5 @@
 module Models
 
-import StatsBase: fit, predict
-
 export Model, Template
 export fit, predict, submodels, estimate_type, output_type
 export EstimateTrait, PointEstimate, DistributionEstimate
