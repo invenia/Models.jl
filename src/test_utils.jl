@@ -131,7 +131,7 @@ Returns the predictions of the `Model`.
 """
 function test_interface(template::Template; kwargs...)
     @testset "Models API Interface Test: $(nameof(typeof(template)))" begin
-        return test_interface(template, estimate_type(template), output_type(template); kwargs...)
+        test_interface(template, estimate_type(template), output_type(template); kwargs...)
     end
 end
 
