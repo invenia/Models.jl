@@ -126,8 +126,6 @@ StatsBase.predict(m::FakeModel, inputs) = m.predictor(m.num_variates, inputs)
 
 Test that subtypes of [`Template`](@ref) and [`Model`](@ref) implement the expected API.
 Can be used as an initial test to verify the API has been correctly implemented.
-
-Returns the predictions of the `Model`.
 """
 function test_interface(template::Template; kwargs...)
     @testset "Models API Interface Test: $(nameof(typeof(template)))" begin
