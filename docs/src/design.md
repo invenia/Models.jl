@@ -29,7 +29,7 @@ One does not have to carry both a [`Model`](@ref) type, and a varying collection
 ## Calling `fit` and `predict`
 
 ```julia
-model = StatsBase.fit(
+model = Models.fit(
     template,
     outputs::AbstractMatrix,  # always Features x Observations
     inputs::AbstractMatrix,   # always Variates x Observations
@@ -38,7 +38,7 @@ model = StatsBase.fit(
 ```
 
 ```julia
-outputs = StatsBase.predict(
+outputs = Models.predict(
     model,
     inputs::AbstractMatrix  # always Features x Observations
 )::AbstractMatrix  # always Variates x Observations

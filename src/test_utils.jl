@@ -9,7 +9,7 @@ module TestUtils
 using Distributions: Normal, MultivariateNormal
 using Models
 using NamedDims
-using StatsBase
+using StatsBase: uweights
 using Test
 
 export FakeModel, FakeTemplate
@@ -108,7 +108,7 @@ Models.output_type(::Type{<:FakeModel{E, O}}) where {E, O} = O
 Models.estimate_type(::Type{<:FakeTemplate{E, O}}) where {E, O} = E
 Models.output_type(::Type{<:FakeTemplate{E, O}}) where {E, O} = O
 
-function StatsBase.fit(
+function Models.fit(
     template::FakeTemplate{E, O},
     outputs,
     inputs,
@@ -119,7 +119,7 @@ function StatsBase.fit(
     return FakeModel{E, O}(template.predictor, num_variates)
 end
 
-StatsBase.predict(m::FakeModel, inputs) = m.predictor(m.num_variates, inputs)
+Models.predict(m::FakeModel, inputs) = m.predictor(m.num_variates, inputs)
 
 """
     test_interface(template::Template; inputs=rand(5, 5), outputs=rand(5, 5))
