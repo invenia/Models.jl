@@ -44,7 +44,7 @@ Predict targets for the provided the collection of `inputs` and [`Model`](@ref).
 If the `estimate_type(model)` is [`PointEstimate`](@ref) then this function should return
 another `AbstractMatrix` in which each column contains the prediction for a single input.
 
-If the `estimate_type(model) == [`DistributionEstimate`](@ref) then this function should
+If the `estimate_type(model)` is [`DistributionEstimate`](@ref) then this function should
 return a `AbstractVector{<:Distribution}`.
 """
 function predict end
