@@ -68,7 +68,7 @@ end
 """
     FakeTemplate{DistributionEstimate, SingleOutput}()
 
-A [`Template`](@ref) whose [`Model`](@ref) will predict a univariate normal posterior
+A [`Template`](@ref) whose [`Model`](@ref) will predict a univariate normal
 distribution (with zero mean and unit standard deviation) for each observation.
 """
 function FakeTemplate{DistributionEstimate, SingleOutput}()
@@ -82,7 +82,7 @@ end
 """
     FakeTemplate{DistributionEstimate, MultiOutput}()
 
-A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal posterior
+A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal
 distribution (with zero-vector mean and identity covariance matrix) for each observation.
 """
 function FakeTemplate{DistributionEstimate, MultiOutput}()
