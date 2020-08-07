@@ -28,7 +28,7 @@ Defined as well are the traits:
 abstract type Model end
 
 """
-   fit(::Template, output, input, [weights]) -> Model
+   fit(::Template, output::AbstractMatrix, input::AbstractMatrix, [weights]) -> Model
 
 Fit the [`Template`](@ref) to the `output` and `input` data and return a trained
 [`Model`](@ref).
@@ -37,19 +37,15 @@ Convention is that `weights` defaults to `StatsBase.uweights(Float32, size(outpu
 function fit end
 
 """
-    predict(model::Model, inputs)
+    predict(model::Model, inputs::AbstractMatrix)
 
-Predict targets for the provided the collection of `inputs` and [`Model`](@ref). Canonical
-`inputs` representation is an `AbstractMatrix` for which each column represents a single
-input.
+Predict targets for the provided the collection of `inputs` and [`Model`](@ref).
 
 If the `estimate_type(model) == [`PointEstimate`](@ref) then this function should return
 another `AbstractMatrix` in which each column contains the prediction for a single input.
 
 If the `estimate_type(model) == [`DistributionEstimate`](@ref) then this function should
 return a `Vector{<:Distribution}`.
-
-Returns a predictive distribution or point estimates depending on the [`Model`](@ref).
 """
 function predict end
 
