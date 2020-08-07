@@ -45,7 +45,7 @@ If the `estimate_type(model) == [`PointEstimate`](@ref) then this function shoul
 another `AbstractMatrix` in which each column contains the prediction for a single input.
 
 If the `estimate_type(model) == [`DistributionEstimate`](@ref) then this function should
-return a `Vector{<:Distribution}`.
+return a `AbstractVector{<:Distribution}`.
 """
 function predict end
 
