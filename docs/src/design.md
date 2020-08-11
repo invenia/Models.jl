@@ -30,7 +30,7 @@ One does not have to carry both a [`Model`](@ref) type, and a varying collection
 
 ```julia
 model = StatsBase.fit(
-    template,
+    template::Template,
     outputs::AbstractMatrix,  # always Features x Observations
     inputs::AbstractMatrix,   # always Variates x Observations
     weights=uweights(Float32, size(outputs, 2))
@@ -38,10 +38,17 @@ model = StatsBase.fit(
 ```
 
 ```julia
+# estimate_type(model) == PointEsimate
 outputs = StatsBase.predict(
-    model,
+    model::Model,
     inputs::AbstractMatrix  # always Features x Observations
 )::AbstractMatrix  # always Variates x Observations
+
+# estimate_type(model) == DistributionEstimate
+outputs = StatsBase.predict(
+    model::Model,
+    inputs::AbstractMatrix  # always Features x Observations
+)::AbstractVector{<:Distribution}  # length Observations
 ```
 
 [`fit`](@ref) takes in a [`Template`](@ref) and some *data* and returns a [`Model`](@ref) that has been fit to the data.
