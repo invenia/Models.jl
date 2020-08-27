@@ -158,7 +158,7 @@ function test_interface(
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
     predictions = test_common(template, inputs, outputs)
-    @test predictions isa Vector{<:ContinuousUnivariateDistribution}
+    @test predictions isa AbstractVector{<:ContinuousUnivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
 end
@@ -168,7 +168,7 @@ function test_interface(
     inputs=rand(5, 5), outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)
-    @test predictions isa Vector{<:ContinuousMultivariateDistribution}
+    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
 end
