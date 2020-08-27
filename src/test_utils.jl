@@ -6,7 +6,7 @@ testing downstream dependencies, and [`test_interface`](@ref) for testing the Mo
 been correctly implemented.
 """
 module TestUtils
-using Distributions: Normal, MultivariateNormal
+using Distributions
 using Models
 using NamedDims
 using StatsBase
@@ -75,7 +75,7 @@ function FakeTemplate{DistributionEstimate, SingleOutput}()
     FakeTemplate{DistributionEstimate, SingleOutput}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
         inputs = NamedDimsArray{(:features, :observations)}(inputs)
-        return Normal.(zeros(size(inputs, :observations)))
+        return NoncentralT.(3.0, zeros(size(inputs, :observations)))
     end
 end
 
@@ -88,7 +88,7 @@ distribution (with zero-vector mean and identity covariance matrix) for each obs
 function FakeTemplate{DistributionEstimate, MultiOutput}()
     FakeTemplate{DistributionEstimate, MultiOutput}() do num_variates, inputs
         std_dev = ones(num_variates)
-        return [MultivariateNormal(std_dev) for _ in 1:size(inputs, 2)]
+        return [Product(Normal.(0, std_dev)) for _ in 1:size(inputs, 2)]
     end
 end
 
@@ -158,7 +158,7 @@ function test_interface(
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
     predictions = test_common(template, inputs, outputs)
-    @test predictions isa Vector{<:Normal{<:Real}}
+    @test predictions isa Vector{<:ContinuousUnivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
 end
@@ -168,7 +168,7 @@ function test_interface(
     inputs=rand(5, 5), outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)
-    @test predictions isa Vector{<:MultivariateNormal{<:Real}}
+    @test predictions isa Vector{<:ContinuousMultivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
 end
