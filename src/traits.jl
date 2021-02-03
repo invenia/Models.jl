@@ -58,3 +58,33 @@ Return the [`OutputTrait`] of the [`Model`](@ref) or [`Template`](@ref).
 """
 output_type(::T) where T = output_type(T)
 output_type(T::Type) = throw(MethodError(output_type, (T,)))  # to prevent recursion
+
+"""
+    InputTrait
+
+The `InputTrait` specifies if the model supports point or distribution inputs to predict,
+denoted by [`PointInput`](@ref) or [`DistributionInput`](@ref), respectively.
+"""
+abstract type InputTrait end
+
+"""
+    PointInput <: InputTrait
+
+Specifies that the [`Model`](@ref) accepts real-valued input variables to `predict`.
+"""
+abstract type PointInput <: InputTrait end
+
+"""
+    DistributionInput <: InputTrait
+
+Specifies that the [`Model`](@ref) returns a distribution over the input vairables to `predict`.
+"""
+abstract type DistributionInput <: InputTrait end
+
+"""
+    input_type(::T) where T = input_type(T)
+
+Return the [`InputTrait`] of the [`Model`](@ref) or [`Template`](@ref).
+"""
+input_type(::T) where T = input_type(T)
+input_type(T::Type) = throw(MethodError(input_type, (T,)))  # to prevent recursion

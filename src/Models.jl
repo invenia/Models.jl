@@ -6,6 +6,7 @@ export Model, Template
 export fit, predict, submodels, estimate_type, output_type
 export EstimateTrait, PointEstimate, DistributionEstimate
 export OutputTrait, SingleOutput, MultiOutput
+export InputTrait, PointInput, DistributionInput
 
 """
    Template
