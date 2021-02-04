@@ -77,7 +77,7 @@ abstract type PointInput <: InputTrait end
 """
     DistributionInput <: InputTrait
 
-Specifies that the [`Model`](@ref) returns a distribution over the input vairables to `predict`.
+Specifies that the [`Model`](@ref) accepts a distribution over the input variables to `predict`.
 """
 abstract type DistributionInput <: InputTrait end
 
