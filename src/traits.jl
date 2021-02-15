@@ -60,31 +60,42 @@ output_type(::T) where T = output_type(T)
 output_type(T::Type) = throw(MethodError(output_type, (T,)))  # to prevent recursion
 
 """
-    InputTrait
+    InjectTrait
 
-The `InputTrait` specifies if the model supports point or distribution inputs to predict,
-denoted by [`PointInput`](@ref) or [`DistributionInput`](@ref), respectively.
+The `InjectTrait` specifies if the model supports point or distribution injections to predict,
+denoted by [`PointInject`](@ref) or [`DistributionInject`](@ref), respectively.
 """
-abstract type InputTrait end
+abstract type InjectTrait end
 
 """
-    PointInput <: InputTrait
+    PointInject <: InjectTrait
 
 Specifies that the [`Model`](@ref) accepts real-valued input variables to `predict`.
 """
-abstract type PointInput <: InputTrait end
+abstract type PointInject <: InjectTrait end
 
 """
-    DistributionInput <: InputTrait
+    DistributionInject <: InjectTrait
 
 Specifies that the [`Model`](@ref) accepts a distribution over the input variables to `predict`.
 """
-abstract type DistributionInput <: InputTrait end
+abstract type DistributionInject <: InjectTrait end
 
 """
-    input_type(::T) where T = input_type(T)
+    PointOrDistributionInject <: InjectTrait
 
-Return the [`InputTrait`] of the [`Model`](@ref) or [`Template`](@ref).
+Specifies that the [`Model`](@ref) accepts real-values or a distribution over the input 
+variables to `predict`.
 """
-input_type(::T) where T = input_type(T)
-input_type(T::Type) = throw(MethodError(input_type, (T,)))  # to prevent recursion
+abstract type PointOrDistributionInject <: InjectTrait end
+
+"""
+    inject_type(::T) where T = inject_type(T)
+
+Return the [`InjectTrait`] of the [`Model`](@ref) or [`Template`](@ref).
+"""
+inject_type(::T) where T = inject_type(T)
+inject_type(T::Type) = throw(MethodError(inject_type, (T,)))  # to prevent recursion
+
+inject_type(::Type{<:Model}) = PointInject
+inject_type(::Type{<:Template}) = PointInject

@@ -3,10 +3,10 @@ module Models
 import StatsBase: fit, predict
 
 export Model, Template
-export fit, predict, submodels, estimate_type, output_type
+export fit, predict, submodels, estimate_type, output_type, inject_type
 export EstimateTrait, PointEstimate, DistributionEstimate
 export OutputTrait, SingleOutput, MultiOutput
-export InputTrait, PointInput, DistributionInput
+export InjectTrait, PointInject, DistributionInject, PointOrDistributionInject
 
 """
    Template
