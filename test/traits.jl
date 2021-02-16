@@ -5,7 +5,7 @@ struct DummyModel <: Model end
 
     estimates = (PointEstimate, DistributionEstimate)
     outputs = (SingleOutput, MultiOutput)
-
+    
     @testset "$est, $out" for (est, out) in Iterators.product(estimates, outputs)
 
         @testset "Errors if traits are not defined" begin
@@ -29,5 +29,20 @@ struct DummyModel <: Model end
 
     end
 
+    @testset "Inject Trait" begin
+        
+        @testset "Default" begin
+            @test inject_type(DummyTemplate) == inject_type(DummyModel) == PointInject
+        end 
+
+        injects = (DistributionInject, PointOrDistributionInject)
+
+        @testset "$inj is defined" for inj in injects
+            inject_type(m::Type{<:DummyTemplate}) = inj
+            inject_type(m::Type{<:DummyModel}) = inj
+            
+            @test inject_type(DummyTemplate) == inject_type(DummyModel) == inj
+        end
+    end
 
 end
