@@ -36,7 +36,7 @@ mutable struct FakeTemplate{E<:EstimateTrait, O<:OutputTrait} <: Template
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput}()
+    FakeTemplate{PointEstimate, SingleOutput, PointInject}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict 0 for each observation.
 """
@@ -119,7 +119,7 @@ function StatsBase.fit(
     return FakeModel{E, O}(template.predictor, num_variates)
 end
 
-StatsBase.predict(m::FakeModel, inputs) = m.predictor(m.num_variates, inputs)
+StatsBase.predict(m::FakeModel, inputs::AbstractMatrix) = m.predictor(m.num_variates, inputs)
 
 """
     test_interface(template::Template; inputs=rand(5, 5), outputs=rand(5, 5))
@@ -129,23 +129,28 @@ Can be used as an initial test to verify the API has been correctly implemented.
 """
 function test_interface(template::Template; kwargs...)
     @testset "Models API Interface Test: $(nameof(typeof(template)))" begin
-        test_interface(template, estimate_type(template), output_type(template); kwargs...)
+        test_interface(
+            template, 
+            estimate_type(template), 
+            output_type(template),
+            inject_type(template); 
+            kwargs...
+        )
     end
 end
 
 function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput};
+    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput}, ::Type{PointInject};
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
     predictions = test_common(template, inputs, outputs)
-
     @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
     @test size(predictions) == size(outputs)
     @test size(predictions, 1) == 1
 end
 
 function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput};
+    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput}, ::Type{PointInject};
     inputs=rand(5, 5), outputs=rand(2, 5),
 )
     predictions = test_common(template, inputs, outputs)
@@ -154,7 +159,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput};
+    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput}, ::Type{PointInject};
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
     predictions = test_common(template, inputs, outputs)
@@ -164,7 +169,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput};
+    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointInject};
     inputs=rand(5, 5), outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)
@@ -210,6 +215,7 @@ function test_common(template, inputs, outputs)
     @testset "traits" begin
         @test estimate_type(template) == estimate_type(model)
         @test output_type(template) == output_type(model)
+        @test inject_type(template) == inject_type(model)
     end
 
     @testset "submodels" begin

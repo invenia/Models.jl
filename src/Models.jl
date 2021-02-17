@@ -39,6 +39,7 @@ function fit end
 
 """
     predict(model::Model, inputs::AbstractMatrix)
+    predict(model::Model, inputs::AbstractVector{<:AbstractVector})
 
 Predict targets for the provided the collection of `inputs` and [`Model`](@ref).
 
@@ -49,6 +50,10 @@ If the `estimate_type(model)` is [`DistributionEstimate`](@ref) then this functi
 return a `AbstractVector{<:Distribution}`.
 """
 function predict end
+
+function predict(model::Model, inputs::AbstractVector{<:AbstractVector})
+   return predict(model, hcat(inputs...))
+end
 
 """
     submodels(::Union{Template, Model})

@@ -20,4 +20,9 @@
         test_interface(temp)
     end
 
+    @testset "FakeTemplate{PointEstimate, SingleOutput} with Vector{<:Vector}" begin
+        temp = FakeTemplate{PointEstimate, SingleOutput}()
+        test_interface(temp; inputs=[rand(5), rand(5)], outputs=rand(1, 2))
+    end
+
 end
