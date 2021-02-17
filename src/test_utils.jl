@@ -121,7 +121,7 @@ function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInje
 end
 
 _handle_inputs(inputs::AbstractVector{<:Normal}) = mean.(inputs)
-_handle_inputs(inputs::AbstractMatrix) = only([mean(inputs[:, m]) for m in 1:size(inputs, 2)])
+_handle_inputs(inputs::AbstractMatrix) = [mean(inputs[m, :]) for m in 1:size(inputs, 2)]
 
 """
     FakeModel
@@ -220,18 +220,16 @@ function test_interface(
     @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
-    @test mean.(mean.(predictions)) == [i for i in 1:5]
 end
 
 function test_interface(
     template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionInject};
-    inputs=[Normal(m, 1) for m in 1:5], outputs=rand(3, 5)
+    inputs=hcat([[i for i in 1:5] for j in 1:5]...), outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)
     @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))
-    @test mean.(mean.(predictions)) == [i for i in 1:5]
 end
 
 function test_names(template, model)
