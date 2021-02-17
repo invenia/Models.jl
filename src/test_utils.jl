@@ -107,6 +107,23 @@ function FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
 end
 
 """
+    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
+
+A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal
+distribution (with zero-vector mean and identity covariance matrix) for each observation.
+"""
+function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
+    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}() do num_variates, inputs
+        std_dev = ones(num_variates)
+        means = _handle_inputs(inputs)
+        return [Product(Normal.(m, std_dev)) for m in means]
+    end
+end
+
+_handle_inputs(inputs::AbstractVector{<:Normal}) = mean.(inputs)
+_handle_inputs(inputs::AbstractMatrix) = only([mean(inputs[:, m]) for m in 1:size(inputs, 2)])
+
+"""
     FakeModel
 
 A fake Model for testing purposes. See [`FakeTemplate`](@ref) for details.
@@ -197,6 +214,17 @@ end
 
 function test_interface(
     template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{DistributionInject};
+    inputs=[Normal(m, 1) for m in 1:5], outputs=rand(3, 5)
+)
+    predictions = test_common(template, inputs, outputs)
+    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
+    @test length(predictions) == size(outputs, 2)
+    @test all(length.(predictions) .== size(outputs, 1))
+    @test mean.(mean.(predictions)) == [i for i in 1:5]
+end
+
+function test_interface(
+    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionInject};
     inputs=[Normal(m, 1) for m in 1:5], outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)

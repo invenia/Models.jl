@@ -3,6 +3,9 @@
     @testset "FakeTemplate{PointEstimate, SingleOutput, PointInject}" begin
         temp = FakeTemplate{PointEstimate, SingleOutput, PointInject}()
         test_interface(temp)
+
+        temp = FakeTemplate{PointEstimate, SingleOutput, PointInject}()
+        test_interface(temp; inputs=[rand(5), rand(5)], outputs=rand(1, 2))
     end
 
     @testset "FakeTemplate{PointEstimate, MultiOutput, PointInject}" begin
@@ -20,13 +23,17 @@
         test_interface(temp)
     end
 
-    @testset "FakeTemplate{PointEstimate, SingleOutput, PointInject} with Vector{<:Vector}" begin
-        temp = FakeTemplate{PointEstimate, SingleOutput, PointInject}()
-        test_interface(temp; inputs=[rand(5), rand(5)], outputs=rand(1, 2))
-    end
-
     @testset "FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}" begin
         temp = FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
         test_interface(temp)
     end
+
+    @testset "FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}" begin
+        temp = FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
+        test_interface(temp)
+
+        temp = FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
+        test_interface(temp; inputs=hcat([[i for i in 1:5] for j in 1:5]), outputs=rand(3, 5))
+    end
+
 end
