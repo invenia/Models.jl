@@ -122,7 +122,7 @@ function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInje
     end
 end
 
-_handle_inputs(inputs::AbstractVector{<:Normal}) = mean.(inputs)
+_handle_inputs(inputs::AbstractVector{<:Sampleable}) = mean.(inputs)
 _handle_inputs(inputs::AbstractMatrix) = [mean(inputs[m, :]) for m in 1:size(inputs, 2)]
 
 """
@@ -155,7 +155,7 @@ function StatsBase.fit(
 end
 
 StatsBase.predict(m::FakeModel, inputs::AbstractMatrix) = m.predictor(m.num_variates, inputs)
-StatsBase.predict(m::FakeModel, inputs::AbstractVector{<:Normal}) = m.predictor(m.num_variates, inputs)
+StatsBase.predict(m::FakeModel, inputs::AbstractVector{<:Sampleable}) = m.predictor(m.num_variates, inputs)
 
 """
     test_interface(template::Template; inputs=rand(5, 5), outputs=rand(5, 5))
