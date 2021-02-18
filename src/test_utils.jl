@@ -95,8 +95,9 @@ end
 """
     FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
 
-A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal
-distribution (with zero-vector mean and identity covariance matrix) for each observation.
+A [`Template`](@ref) whose [`Model`](@ref) will accept a vector of distributions to predict 
+a multivariate normal distribution (with means matching those of the passed distributions
+and identity covariance matrix) for each observation.
 """
 function FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
     FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}() do num_variates, inputs
@@ -109,8 +110,9 @@ end
 """
     FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
 
-A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal
-distribution (with zero-vector mean and identity covariance matrix) for each observation.
+A [`Template`](@ref) whose [`Model`](@ref) will accept real-valued or distribution inputs to 
+predict a multivariate normal distribution (with means matching those of the passed 
+observations and identity covariance matrix) for each observation.
 """
 function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
     FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}() do num_variates, inputs
@@ -224,9 +226,15 @@ end
 
 function test_interface(
     template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionInject};
-    inputs=hcat([[i for i in 1:5] for j in 1:5]...), outputs=rand(3, 5)
+    inputs=rand(5, 5), outputs=rand(3, 5), distribution_inputs=[Normal(m, 1) for m in 1:5],
 )
     predictions = test_common(template, inputs, outputs)
+    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
+    @test length(predictions) == size(outputs, 2)
+    @test all(length.(predictions) .== size(outputs, 1))
+
+    model = fit(template, outputs, inputs)
+    predictions = predict(model, distribution_inputs)
     @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
     @test length(predictions) == size(outputs, 2)
     @test all(length.(predictions) .== size(outputs, 1))

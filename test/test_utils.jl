@@ -30,9 +30,6 @@
 
     @testset "FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}" begin
         temp = FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
-        test_interface(temp; inputs=[Normal(m, 1) for m in 1:5], outputs=rand(3, 5))
-
-        temp = FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
         test_interface(temp)
     end
 

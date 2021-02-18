@@ -63,7 +63,8 @@ output_type(T::Type) = throw(MethodError(output_type, (T,)))  # to prevent recur
     InjectTrait
 
 The `InjectTrait` specifies if the model supports point or distribution injections to predict,
-denoted by [`PointInject`](@ref) or [`DistributionInject`](@ref), respectively.
+denoted by [`PointInject`](@ref) or [`DistributionInject`](@ref), respectively.  A model can
+also be implemented in such a way as to allow [`PointOrDistributionInject`](@ref).
 """
 abstract type InjectTrait end
 
