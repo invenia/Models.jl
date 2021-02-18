@@ -29,19 +29,19 @@ struct DummyModel <: Model end
 
     end
 
-    @testset "Inject Trait" begin
+    @testset "PredictInput Trait" begin
         
         @testset "Default" begin
-            @test inject_type(DummyTemplate) == inject_type(DummyModel) == PointInject
+            @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == PointPredictInput
         end 
 
-        injects = (DistributionInject, PointOrDistributionInject)
+        predict_input = (DistributionPredictInput, PointOrDistributionPredictInput)
 
-        @testset "$inj is defined" for inj in injects
-            inject_type(m::Type{<:DummyTemplate}) = inj
-            inject_type(m::Type{<:DummyModel}) = inj
+        @testset "$pinputs is defined" for pinputs in predict_input
+            predict_input_type(m::Type{<:DummyTemplate}) = pinputs
+            predict_input_type(m::Type{<:DummyModel}) = pinputs
             
-            @test inject_type(DummyTemplate) == inject_type(DummyModel) == inj
+            @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == pinputs
         end
     end
 

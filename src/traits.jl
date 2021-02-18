@@ -60,43 +60,43 @@ output_type(::T) where T = output_type(T)
 output_type(T::Type) = throw(MethodError(output_type, (T,)))  # to prevent recursion
 
 """
-    InjectTrait
+    PredictInputTrait
 
-The `InjectTrait` specifies if the model supports point or distribution injections to predict,
-denoted by [`PointInject`](@ref) or [`DistributionInject`](@ref), respectively.  A model can
-also be implemented in such a way as to allow [`PointOrDistributionInject`](@ref).
+The `PredictInputTrait` specifies if the model supports point or distribution injections to predict,
+denoted by [`PointPredictInput`](@ref) or [`DistributionPredictInput`](@ref), respectively.  A model can
+also be implemented in such a way as to allow [`PointOrDistributionPredictInput`](@ref).
 """
-abstract type InjectTrait end
+abstract type PredictInputTrait end
 
 """
-    PointInject <: InjectTrait
+    PointPredictInput <: PredictInputTrait
 
 Specifies that the [`Model`](@ref) accepts real-valued input variables to `predict`.
 """
-abstract type PointInject <: InjectTrait end
+abstract type PointPredictInput <: PredictInputTrait end
 
 """
-    DistributionInject <: InjectTrait
+    DistributionPredictInput <: PredictInputTrait
 
 Specifies that the [`Model`](@ref) accepts a distribution over the input variables to `predict`.
 """
-abstract type DistributionInject <: InjectTrait end
+abstract type DistributionPredictInput <: PredictInputTrait end
 
 """
-    PointOrDistributionInject <: InjectTrait
+    PointOrDistributionPredictInput <: PredictInputTrait
 
 Specifies that the [`Model`](@ref) accepts real-values or a distribution over the input 
 variables to `predict`.
 """
-abstract type PointOrDistributionInject <: InjectTrait end
+abstract type PointOrDistributionPredictInput <: PredictInputTrait end
 
 """
-    inject_type(::T) where T = inject_type(T)
+    predict_input_type(::T) where T = predict_input_type(T)
 
-Return the [`InjectTrait`] of the [`Model`](@ref) or [`Template`](@ref).
+Return the [`PredictInputTrait`] of the [`Model`](@ref) or [`Template`](@ref).
 """
-inject_type(::T) where T = inject_type(T)
-inject_type(T::Type) = throw(MethodError(inject_type, (T,)))  # to prevent recursion
+predict_input_type(::T) where T = predict_input_type(T)
+predict_input_type(T::Type) = throw(MethodError(predict_input, (T,)))  # to prevent recursion
 
-inject_type(::Type{<:Model}) = PointInject
-inject_type(::Type{<:Template}) = PointInject
+predict_input_type(::Type{<:Model}) = PointPredictInput
+predict_input_type(::Type{<:Template}) = PointPredictInput

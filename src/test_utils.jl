@@ -16,7 +16,7 @@ export FakeModel, FakeTemplate
 export test_interface
 
 """
-    FakeTemplate{E <: EstimateTrait, O <: OutputTrait, I <: InjectTrait} <: Template
+    FakeTemplate{E <: EstimateTrait, O <: OutputTrait, I <: PredictInputTrait} <: Template
 
 This template is a [test double](https://en.wikipedia.org/wiki/Test_double) for testing
 purposes. It should be defined (before fitting) with a `predictor`, which can be changed by
@@ -31,17 +31,17 @@ mutating the field.
 - [`fit`](@ref) does not learn anything, it just creates an instance of the corresponding [`Model`](@ref).
 - [`predict`](@ref) applies the `predictor` to the inputs.
 """
-mutable struct FakeTemplate{E<:EstimateTrait, O<:OutputTrait, I<:InjectTrait} <: Template
+mutable struct FakeTemplate{E<:EstimateTrait, O<:OutputTrait, I<:PredictInputTrait} <: Template
     predictor::Function
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput, PointInject}()
+    FakeTemplate{PointEstimate, SingleOutput, PointPredictInput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict 0 for each observation.
 """
-function FakeTemplate{PointEstimate, SingleOutput, PointInject}()
-    FakeTemplate{PointEstimate, SingleOutput, PointInject}() do num_variates, inputs
+function FakeTemplate{PointEstimate, SingleOutput, PointPredictInput}()
+    FakeTemplate{PointEstimate, SingleOutput, PointPredictInput}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
         inputs = NamedDimsArray{(:features, :observations)}(inputs)
         return NamedDimsArray{(:variates, :observations)}(
@@ -51,13 +51,13 @@ function FakeTemplate{PointEstimate, SingleOutput, PointInject}()
 end
 
 """
-    FakeTemplate{PointEstimate, MultiOutput, PointInject}()
+    FakeTemplate{PointEstimate, MultiOutput, PointPredictInput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict a vector of 0s for each observation.
 The input and output will have the same dimension.
 """
-function FakeTemplate{PointEstimate, MultiOutput, PointInject}()
-    FakeTemplate{PointEstimate, MultiOutput, PointInject}() do num_variates, inputs
+function FakeTemplate{PointEstimate, MultiOutput, PointPredictInput}()
+    FakeTemplate{PointEstimate, MultiOutput, PointPredictInput}() do num_variates, inputs
         inputs = NamedDimsArray{(:features, :observations)}(inputs)
         return NamedDimsArray{(:variates, :observations)}(
             zeros(num_variates, size(inputs, :observations))
@@ -66,13 +66,13 @@ function FakeTemplate{PointEstimate, MultiOutput, PointInject}()
 end
 
 """
-    FakeTemplate{DistributionEstimate, SingleOutput, PointInject}()
+    FakeTemplate{DistributionEstimate, SingleOutput, PointPredictInput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict a univariate normal
 distribution (with zero mean and unit standard deviation) for each observation.
 """
-function FakeTemplate{DistributionEstimate, SingleOutput, PointInject}()
-    FakeTemplate{DistributionEstimate, SingleOutput, PointInject}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, SingleOutput, PointPredictInput}()
+    FakeTemplate{DistributionEstimate, SingleOutput, PointPredictInput}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
         inputs = NamedDimsArray{(:features, :observations)}(inputs)
         return NoncentralT.(3.0, zeros(size(inputs, :observations)))
@@ -80,27 +80,27 @@ function FakeTemplate{DistributionEstimate, SingleOutput, PointInject}()
 end
 
 """
-    FakeTemplate{DistributionEstimate, MultiOutput, PointInject}()
+    FakeTemplate{DistributionEstimate, MultiOutput, PointPredictInput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will predict a multivariate normal
 distribution (with zero-vector mean and identity covariance matrix) for each observation.
 """
-function FakeTemplate{DistributionEstimate, MultiOutput, PointInject}()
-    FakeTemplate{DistributionEstimate, MultiOutput, PointInject}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, MultiOutput, PointPredictInput}()
+    FakeTemplate{DistributionEstimate, MultiOutput, PointPredictInput}() do num_variates, inputs
         std_dev = ones(num_variates)
         return [Product(Normal.(0, std_dev)) for _ in 1:size(inputs, 2)]
     end
 end
 
 """
-    FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
+    FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will accept a vector of distributions to predict 
 a multivariate normal distribution (with means matching those of the passed distributions
 and identity covariance matrix) for each observation.
 """
-function FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
-    FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}()
+    FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}() do num_variates, inputs
         std_dev = ones(num_variates)
         means = mean.(inputs)
         return [Product(Normal.(m, std_dev)) for m in means]
@@ -108,14 +108,14 @@ function FakeTemplate{DistributionEstimate, MultiOutput, DistributionInject}()
 end
 
 """
-    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
+    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will accept real-valued or distribution inputs to 
 predict a multivariate normal distribution (with means matching those of the passed 
 observations and identity covariance matrix) for each observation.
 """
-function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}()
-    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionInject}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}()
+    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}() do num_variates, inputs
         std_dev = ones(num_variates)
         means = _handle_inputs(inputs)
         return [Product(Normal.(m, std_dev)) for m in means]
@@ -130,18 +130,18 @@ _handle_inputs(inputs::AbstractMatrix) = [mean(inputs[m, :]) for m in 1:size(inp
 
 A fake Model for testing purposes. See [`FakeTemplate`](@ref) for details.
 """
-mutable struct FakeModel{E<:EstimateTrait, O<:OutputTrait, I<:InjectTrait} <: Model
+mutable struct FakeModel{E<:EstimateTrait, O<:OutputTrait, I<:PredictInputTrait} <: Model
     predictor::Function
     num_variates::Int
 end
 
 Models.estimate_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = E
 Models.output_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = O
-Models.inject_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = I
+Models.predict_input_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = I
 
 Models.estimate_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = E
 Models.output_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = O
-Models.inject_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = I
+Models.predict_input_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = I
 
 function StatsBase.fit(
     template::FakeTemplate{E, O, I},
@@ -169,14 +169,14 @@ function test_interface(template::Template; kwargs...)
             template, 
             estimate_type(template), 
             output_type(template),
-            inject_type(template); 
+            predict_input_type(template); 
             kwargs...
         )
     end
 end
 
 function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput}, ::Type{PointInject};
+    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput}, ::Type{PointPredictInput};
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
     predictions = test_common(template, inputs, outputs)
@@ -186,7 +186,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput}, ::Type{PointInject};
+    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput}, ::Type{PointPredictInput};
     inputs=rand(5, 5), outputs=rand(2, 5),
 )
     predictions = test_common(template, inputs, outputs)
@@ -195,7 +195,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput}, ::Type{PointInject};
+    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput}, ::Type{PointPredictInput};
     inputs=rand(5, 5), outputs=rand(1, 5),
 )
     predictions = test_common(template, inputs, outputs)
@@ -205,7 +205,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointInject};
+    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointPredictInput};
     inputs=rand(5, 5), outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)
@@ -215,7 +215,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{DistributionInject};
+    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{DistributionPredictInput};
     inputs=[Normal(m, 1) for m in 1:5], outputs=rand(3, 5)
 )
     predictions = test_common(template, inputs, outputs)
@@ -225,7 +225,7 @@ function test_interface(
 end
 
 function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionInject};
+    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionPredictInput};
     inputs=rand(5, 5), outputs=rand(3, 5), distribution_inputs=[Normal(m, 1) for m in 1:5],
 )
     predictions = test_common(template, inputs, outputs)
@@ -277,7 +277,7 @@ function test_common(template, inputs, outputs)
     @testset "traits" begin
         @test estimate_type(template) == estimate_type(model)
         @test output_type(template) == output_type(model)
-        @test inject_type(template) == inject_type(model)
+        @test predict_input_type(template) == predict_input_type(model)
     end
 
     @testset "submodels" begin
