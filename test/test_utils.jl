@@ -23,8 +23,38 @@
         test_interface(temp)
     end
 
+    @testset "FakeTemplate{PointEstimate, SingleOutput, DistributionPredictInput}" begin
+        temp = FakeTemplate{PointEstimate, SingleOutput, DistributionPredictInput}()
+        test_interface(temp)
+    end
+
+    @testset "FakeTemplate{PointEstimate, MultiOutput, DistributionPredictInput}" begin
+        temp = FakeTemplate{PointEstimate, MultiOutput, DistributionPredictInput}()
+        test_interface(temp)
+    end
+
+    @testset "FakeTemplate{DistributionEstimate, SingleOutput, DistributionPredictInput}" begin
+        temp = FakeTemplate{DistributionEstimate, SingleOutput, DistributionPredictInput}()
+        test_interface(temp)
+    end
+
     @testset "FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}" begin
         temp = FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}()
+        test_interface(temp)
+    end
+
+    @testset "FakeTemplate{PointEstimate, SingleOutput, PointOrDistributionPredictInput}" begin
+        temp = FakeTemplate{PointEstimate, SingleOutput, PointOrDistributionPredictInput}()
+        test_interface(temp)
+    end
+
+    @testset "FakeTemplate{PointEstimate, MultiOutput, PointOrDistributionPredictInput}" begin
+        temp = FakeTemplate{PointEstimate, MultiOutput, PointOrDistributionPredictInput}()
+        test_interface(temp)
+    end
+
+    @testset "FakeTemplate{DistributionEstimate, SingleOutput, PointOrDistributionPredictInput}" begin
+        temp = FakeTemplate{DistributionEstimate, SingleOutput, PointOrDistributionPredictInput}()
         test_interface(temp)
     end
 
@@ -32,5 +62,4 @@
         temp = FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}()
         test_interface(temp)
     end
-
 end
