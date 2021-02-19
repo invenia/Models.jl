@@ -23,4 +23,8 @@ DistributionEstimate
 OutputTrait
 SingleOutput
 MultiOutput
+PredictInputTrait
+PointPredictInput
+DistributionPredictInput
+PointOrDistributionPredictInput
 ```
