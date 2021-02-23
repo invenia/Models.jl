@@ -79,7 +79,7 @@ Here are the current [`Model`](@ref) traits in use and their possible values:
 
 The traits always agree between the [`Model`](@ref) and the [`Template`](@ref).
 Every [`Model`](@ref) and [`Template`](@ref) should define all the listed traits.
-If left undefined, the ['PredictInputTrait'](@ref) will have the default value of [`PointPredictInput`](@ref).
+If left undefined, the [`PredictInputTrait`](@ref) will have the default value of [`PointPredictInput`](@ref).
 
 This package uses traits implemented such that the trait function returns an `abstract type` (rather than an instance).
 That means to check a trait one uses:
