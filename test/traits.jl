@@ -5,7 +5,7 @@ struct DummyModel <: Model end
 
     estimates = (PointEstimate, DistributionEstimate)
     outputs = (SingleOutput, MultiOutput)
-    
+
     @testset "$est, $out" for (est, out) in Iterators.product(estimates, outputs)
 
         @testset "Errors if traits are not defined" begin
@@ -44,5 +44,4 @@ struct DummyModel <: Model end
             @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == pinputs
         end
     end
-
 end
