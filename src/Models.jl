@@ -55,7 +55,7 @@ return a `AbstractVector{<:Distribution}`.
 function predict end
 
 function predict(model::Model, inputs::AbstractVector{<:AbstractVector})
-   return predict(model, hcat(inputs...))
+   return predict(model, reduce(hcat, inputs))
 end
 
 """
