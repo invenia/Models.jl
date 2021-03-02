@@ -16,7 +16,7 @@ export FakeModel, FakeTemplate
 export test_interface
 
 """
-    FakeTemplate{E <: EstimateTrait, O <: OutputTrait, I <: PredictInputTrait} <: Template
+    FakeTemplate{E <: EstimateTrait, O <: OutputTrait} <: Template
 
 This template is a [test double](https://en.wikipedia.org/wiki/Test_double) for testing
 purposes. It should be defined (before fitting) with a `predictor`, which can be changed by
@@ -31,18 +31,18 @@ mutating the field.
 - [`fit`](@ref) does not learn anything, it just creates an instance of the corresponding [`Model`](@ref).
 - [`predict`](@ref) applies the `predictor` to the inputs.
 """
-mutable struct FakeTemplate{E<:EstimateTrait, O<:OutputTrait, I<:PredictInputTrait} <: Template
+mutable struct FakeTemplate{E<:EstimateTrait, O<:OutputTrait} <: Template
     predictor::Function
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput, PointPredictInput}()
+    FakeTemplate{PointEstimate, SingleOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to predict 0
 for each observation.
 """
-function FakeTemplate{PointEstimate, SingleOutput, I}() where {I<:PredictInputTrait}
-    FakeTemplate{PointEstimate, SingleOutput, I}() do num_variates, inputs
+function FakeTemplate{PointEstimate, SingleOutput}()
+    FakeTemplate{PointEstimate, SingleOutput}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
         inputs = _handle_inputs(inputs)
         return NamedDimsArray{(:variates, :observations)}(
@@ -52,13 +52,13 @@ function FakeTemplate{PointEstimate, SingleOutput, I}() where {I<:PredictInputTr
 end
 
 """
-    FakeTemplate{PointEstimate, MultiOutput, PointPredictInput}()
+    FakeTemplate{PointEstimate, MultiOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to predict a
 vector of 0s for each observation. The input and output will have the same dimension.
 """
-function FakeTemplate{PointEstimate, MultiOutput, I}() where {I<:PredictInputTrait}
-    FakeTemplate{PointEstimate, MultiOutput, I}() do num_variates, inputs
+function FakeTemplate{PointEstimate, MultiOutput}()
+    FakeTemplate{PointEstimate, MultiOutput}() do num_variates, inputs
         inputs = _handle_inputs(inputs)
         return NamedDimsArray{(:variates, :observations)}(
             zeros(num_variates, size(inputs, :observations))
@@ -67,14 +67,14 @@ function FakeTemplate{PointEstimate, MultiOutput, I}() where {I<:PredictInputTra
 end
 
 """
-    FakeTemplate{DistributionEstimate, SingleOutput, PointPredictInput}()
+    FakeTemplate{DistributionEstimate, SingleOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to predict a
 univariate normal distribution (with zero mean and unit standard deviation) for each
 observation.
 """
-function FakeTemplate{DistributionEstimate, SingleOutput, I}() where {I<:PredictInputTrait}
-    FakeTemplate{DistributionEstimate, SingleOutput, I}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, SingleOutput}()
+    FakeTemplate{DistributionEstimate, SingleOutput}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
         inputs = _handle_inputs(inputs)
         return NoncentralT.(3.0, zeros(size(inputs, :observations)))
@@ -82,14 +82,14 @@ function FakeTemplate{DistributionEstimate, SingleOutput, I}() where {I<:Predict
 end
 
 """
-    FakeTemplate{DistributionEstimate, MultiOutput, PointPredictInput}()
+    FakeTemplate{DistributionEstimate, MultiOutput}()
 
 A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to predict a
 multivariate normal distribution (with zero-vector mean and identity covariance matrix) for
 each observation.
 """
-function FakeTemplate{DistributionEstimate, MultiOutput, I}() where {I<:PredictInputTrait}
-    FakeTemplate{DistributionEstimate, MultiOutput, I}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, MultiOutput}()
+    FakeTemplate{DistributionEstimate, MultiOutput}() do num_variates, inputs
         std_dev = ones(num_variates)
         inputs = _handle_inputs(inputs)
         return [Product(Normal.(0, std_dev)) for _ in 1:size(inputs, 2)]
@@ -114,28 +114,26 @@ _handle_inputs(inputs::AbstractMatrix) = NamedDimsArray{(:features, :observation
 
 A fake Model for testing purposes. See [`FakeTemplate`](@ref) for details.
 """
-mutable struct FakeModel{E<:EstimateTrait, O<:OutputTrait, I<:PredictInputTrait} <: Model
+mutable struct FakeModel{E<:EstimateTrait, O<:OutputTrait} <: Model
     predictor::Function
     num_variates::Int
 end
 
-Models.estimate_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = E
-Models.output_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = O
-Models.predict_input_type(::Type{<:FakeModel{E, O, I}}) where {E, O, I} = I
+Models.estimate_type(::Type{<:FakeModel{E, O}}) where {E, O} = E
+Models.output_type(::Type{<:FakeModel{E, O}}) where {E, O} = O
 
-Models.estimate_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = E
-Models.output_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = O
-Models.predict_input_type(::Type{<:FakeTemplate{E, O, I}}) where {E, O, I} = I
+Models.estimate_type(::Type{<:FakeTemplate{E, O}}) where {E, O} = E
+Models.output_type(::Type{<:FakeTemplate{E, O}}) where {E, O} = O
 
 function StatsBase.fit(
-    template::FakeTemplate{E, O, I},
+    template::FakeTemplate{E, O},
     outputs,
     inputs,
     weights=uweights(Float32, size(outputs, 2))
-) where {E, O, I}
+) where {E, O}
     outputs = NamedDimsArray{(:variates, :observations)}(outputs)
     num_variates = size(outputs, :variates)
-    return FakeModel{E, O, I}(template.predictor, num_variates)
+    return FakeModel{E, O}(template.predictor, num_variates)
 end
 
 StatsBase.predict(m::FakeModel, inputs::AbstractMatrix) = m.predictor(m.num_variates, inputs)
