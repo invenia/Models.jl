@@ -26,6 +26,5 @@ SingleOutput
 MultiOutput
 PredictInputTrait
 PointPredictInput
-DistributionPredictInput
 PointOrDistributionPredictInput
 ```

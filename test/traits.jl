@@ -35,13 +35,13 @@ struct DummyModel <: Model end
             @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == PointPredictInput
         end 
 
-        predict_input = (DistributionPredictInput, PointOrDistributionPredictInput)
-
-        @testset "$pinputs is defined" for pinputs in predict_input
-            predict_input_type(m::Type{<:DummyTemplate}) = pinputs
-            predict_input_type(m::Type{<:DummyModel}) = pinputs
+        @testset "PointOrDistributionPredictInput is defined" begin
+            predict_input_type(m::Type{<:DummyTemplate}) = PointOrDistributionPredictInput
+            predict_input_type(m::Type{<:DummyModel}) = PointOrDistributionPredictInput
             
-            @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == pinputs
+            @test predict_input_type(DummyTemplate) == 
+                predict_input_type(DummyModel) == 
+                PointOrDistributionPredictInput
         end
     end
 end

@@ -41,10 +41,10 @@ end
 A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to predict 0
 for each observation.
 """
-function FakeTemplate{PointEstimate, SingleOutput, PointPredictInput}()
-    FakeTemplate{PointEstimate, SingleOutput, PointPredictInput}() do num_variates, inputs
+function FakeTemplate{PointEstimate, SingleOutput, I}() where {I<:PredictInputTrait}
+    FakeTemplate{PointEstimate, SingleOutput, I}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
-        inputs = NamedDimsArray{(:features, :observations)}(inputs)
+        inputs = _handle_inputs(inputs)
         return NamedDimsArray{(:variates, :observations)}(
             zeros(1, size(inputs, :observations))
         )
@@ -57,9 +57,9 @@ end
 A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to predict a
 vector of 0s for each observation. The input and output will have the same dimension.
 """
-function FakeTemplate{PointEstimate, MultiOutput, PointPredictInput}()
-    FakeTemplate{PointEstimate, MultiOutput, PointPredictInput}() do num_variates, inputs
-        inputs = NamedDimsArray{(:features, :observations)}(inputs)
+function FakeTemplate{PointEstimate, MultiOutput, I}() where {I<:PredictInputTrait}
+    FakeTemplate{PointEstimate, MultiOutput, I}() do num_variates, inputs
+        inputs = _handle_inputs(inputs)
         return NamedDimsArray{(:variates, :observations)}(
             zeros(num_variates, size(inputs, :observations))
         )
@@ -73,10 +73,10 @@ A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to p
 univariate normal distribution (with zero mean and unit standard deviation) for each
 observation.
 """
-function FakeTemplate{DistributionEstimate, SingleOutput, PointPredictInput}()
-    FakeTemplate{DistributionEstimate, SingleOutput, PointPredictInput}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, SingleOutput, I}() where {I<:PredictInputTrait}
+    FakeTemplate{DistributionEstimate, SingleOutput, I}() do num_variates, inputs
         @assert(num_variates == 1, "$num_variates != 1")
-        inputs = NamedDimsArray{(:features, :observations)}(inputs)
+        inputs = _handle_inputs(inputs)
         return NoncentralT.(3.0, zeros(size(inputs, :observations)))
     end
 end
@@ -88,141 +88,26 @@ A [`Template`](@ref) whose [`Model`](@ref) will accept real value variables to p
 multivariate normal distribution (with zero-vector mean and identity covariance matrix) for
 each observation.
 """
-function FakeTemplate{DistributionEstimate, MultiOutput, PointPredictInput}()
-    FakeTemplate{DistributionEstimate, MultiOutput, PointPredictInput}() do num_variates, inputs
+function FakeTemplate{DistributionEstimate, MultiOutput, I}() where {I<:PredictInputTrait}
+    FakeTemplate{DistributionEstimate, MultiOutput, I}() do num_variates, inputs
         std_dev = ones(num_variates)
+        inputs = _handle_inputs(inputs)
         return [Product(Normal.(0, std_dev)) for _ in 1:size(inputs, 2)]
     end
 end
 
 """
-    FakeTemplate{PointEstimate, SingleOutput, DistributionPredictInput}()
+    _handle_inputs(inputs::AbstractMatrix)
+    _handle_inputs(inputs::AbstractVector{<:Sampleable})
 
-A [`Template`](@ref) whose [`Model`](@ref) will accept distribution inputs to predict and
-return 0 for each observation.
+Process the inputs to `predict` appropriately depending on whether they are real valued or 
+distributions over input variables.
 """
-function FakeTemplate{PointEstimate, SingleOutput, DistributionPredictInput}()
-    FakeTemplate{PointEstimate, SingleOutput, DistributionPredictInput}() do num_variates, inputs
-        @assert(num_variates == 1, "$num_variates != 1")
-        means = hcat([mean(inputs[i]) for i in 1:size(inputs, 1)]...)
-        inputs = NamedDimsArray{(:features, :observations)}(means)
-        return NamedDimsArray{(:variates, :observations)}(
-            zeros(1, size(inputs, :observations))
-        )
-    end
+function _handle_inputs(inputs::AbstractVector{<:Sampleable})
+    return NamedDimsArray{(:features, :observations)}(hcat([mean(inputs[i]) for i in 1:size(inputs, 1)]...))
 end
 
-"""
-    FakeTemplate{PointEstimate, MultiOutput, DistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept distribution inputs to predict and
-return a vector of 0s for each observation. The input and output will have the same dimension.
-"""
-function FakeTemplate{PointEstimate, MultiOutput, DistributionPredictInput}()
-    FakeTemplate{PointEstimate, MultiOutput, DistributionPredictInput}() do num_variates, inputs
-        means = hcat([mean(inputs[i]) for i in 1:size(inputs, 1)]...)
-        inputs = NamedDimsArray{(:features, :observations)}(means)
-        return NamedDimsArray{(:variates, :observations)}(
-            zeros(num_variates, size(inputs, :observations))
-        )
-    end
-end
-
-"""
-    FakeTemplate{DistributionEstimate, SingleOutput, DistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept distribution inputs to predict and
-return a univariate normal distribution (with zero mean and unit standard deviation) for each
-observation.
-"""
-function FakeTemplate{DistributionEstimate, SingleOutput, DistributionPredictInput}()
-    FakeTemplate{DistributionEstimate, SingleOutput, DistributionPredictInput}() do num_variates, inputs
-        @assert(num_variates == 1, "$num_variates != 1")
-        means = hcat([mean(inputs[i]) for i in 1:size(inputs, 1)]...)
-        inputs = NamedDimsArray{(:features, :observations)}(means)
-        return NoncentralT.(3.0, zeros(size(inputs, :observations)))
-    end
-end
-
-"""
-    FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept distribution inputs to predict and
-return a multivariate normal distribution (with means matching those of the passed
-distributions and identity covariance matrix) for each observation.
-"""
-function FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}()
-    FakeTemplate{DistributionEstimate, MultiOutput, DistributionPredictInput}() do num_variates, inputs
-        std_dev = ones(num_variates)
-        means = hcat([mean(inputs[i]) for i in 1:size(inputs, 1)]...)
-        return [Product(Normal.(0, std_dev)) for _ in 1:size(means, 2)]
-    end
-end
-
-"""
-    FakeTemplate{PointEstimate, SingleOutput, PointOrDistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept real-valued or distribution inputs to
-predict and return 0 for each observation.
-"""
-function FakeTemplate{PointEstimate, SingleOutput, PointOrDistributionPredictInput}()
-    FakeTemplate{PointEstimate, SingleOutput, PointOrDistributionPredictInput}() do num_variates, inputs
-        @assert(num_variates == 1, "$num_variates != 1")
-        inputs = NamedDimsArray{(:features, :observations)}(_handle_inputs(inputs))
-        return NamedDimsArray{(:variates, :observations)}(
-            zeros(1, size(inputs, :observations))
-        )
-    end
-end
-
-"""
-    FakeTemplate{PointEstimate, MultiOutput, PointOrDistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept real-valued or distribution inputs to
-predict and return a vector of 0s for each observation. The input and output will have the
-same dimension.
-"""
-function FakeTemplate{PointEstimate, MultiOutput, PointOrDistributionPredictInput}()
-    FakeTemplate{PointEstimate, MultiOutput, PointOrDistributionPredictInput}() do num_variates, inputs
-        inputs = NamedDimsArray{(:features, :observations)}(_handle_inputs(inputs))
-        return NamedDimsArray{(:variates, :observations)}(
-            zeros(num_variates, size(inputs, :observations))
-        )
-    end
-end
-
-"""
-    FakeTemplate{DistributionEstimate, SingleOutput, PointOrDistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept real-valued or distribution inputs to
-predict and return a univariate normal distribution (with zero mean and unit standard
-deviation) for each observation.
-"""
-function FakeTemplate{DistributionEstimate, SingleOutput, PointOrDistributionPredictInput}()
-    FakeTemplate{DistributionEstimate, SingleOutput, PointOrDistributionPredictInput}() do num_variates, inputs
-        @assert(num_variates == 1, "$num_variates != 1")
-        inputs = NamedDimsArray{(:features, :observations)}(_handle_inputs(inputs))
-        return NoncentralT.(3.0, zeros(size(inputs, :observations)))
-    end
-end
-
-"""
-    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}()
-
-A [`Template`](@ref) whose [`Model`](@ref) will accept real-valued or distribution inputs to 
-predict adn return a multivariate normal distribution (with means matching those of the passed 
-observations and identity covariance matrix) for each observation.
-"""
-function FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}()
-    FakeTemplate{DistributionEstimate, MultiOutput, PointOrDistributionPredictInput}() do num_variates, inputs
-        std_dev = ones(num_variates)
-        means = _handle_inputs(inputs)
-        return [Product(Normal.(0, std_dev)) for _ in 1:size(means, 2)]
-    end
-end
-
-_handle_inputs(inputs::AbstractVector{<:Sampleable}) = hcat([mean(inputs[i]) for i in 1:size(inputs, 1)]...)
-_handle_inputs(inputs::AbstractMatrix) = inputs
+_handle_inputs(inputs::AbstractMatrix) = NamedDimsArray{(:features, :observations)}(inputs)
 
 """
     FakeModel
@@ -262,156 +147,67 @@ StatsBase.predict(m::FakeModel, inputs::AbstractVector{<:Sampleable}) = m.predic
 Test that subtypes of [`Template`](@ref) and [`Model`](@ref) implement the expected API.
 Can be used as an initial test to verify the API has been correctly implemented.
 """
-function test_interface(template::Template; kwargs...)
-    @testset "Models API Interface Test: $(nameof(typeof(template)))" begin
-        test_interface(
-            template, 
-            estimate_type(template), 
-            output_type(template),
-            predict_input_type(template); 
-            kwargs...
-        )
+function _default_outputs(template)
+    if output_type(template) == SingleOutput
+        return rand(1, 5)
+    elseif output_type(template) == MultiOutput
+        return rand(2, 5)
+    else
+        println("Invalid output trait")
     end
 end
 
 function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput}, ::Type{PointPredictInput};
-    inputs=rand(5, 5), outputs=rand(1, 5),
+    template::Template; 
+    inputs=rand(5,5), 
+    outputs=_default_outputs(template),
+    distribution_inputs=[MvNormal(5, m) for m in 1:5],
+    kwargs...
 )
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-    @test size(predictions, 1) == 1
+    @testset "Models API Interface Test: $(nameof(typeof(template)))" begin
+        predictions = test_common(template, inputs, outputs)
+        test_estimate_type(estimate_type(template), predictions, outputs)
+        test_output_type(output_type(template), predictions, outputs)
+        test_predict_input_type(predict_input_type(template), template, predictions, outputs, inputs, distribution_inputs)
+    end
 end
 
-function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput}, ::Type{PointPredictInput};
-    inputs=rand(5, 5), outputs=rand(2, 5),
-)
-    predictions = test_common(template, inputs, outputs)
+function test_estimate_type(::Type{PointEstimate}, predictions, outputs)
     @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
     @test size(predictions) == size(outputs)
 end
 
-function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput}, ::Type{PointPredictInput};
-    inputs=rand(5, 5), outputs=rand(1, 5),
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa AbstractVector{<:ContinuousUnivariateDistribution}
+function test_estimate_type(::Type{DistributionEstimate}, predictions, outputs)
+    @test predictions isa AbstractVector{<:ContinuousDistribution}
     @test length(predictions) == size(outputs, 2)
+end
+
+function test_output_type(::Type{SingleOutput}, predictions, outputs)
     @test all(length.(predictions) .== size(outputs, 1))
+    @test all(length.(predictions) .== 1)
 end
 
-function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointPredictInput};
-    inputs=rand(5, 5), outputs=rand(3, 5)
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
+function test_output_type(::Type{MultiOutput}, predictions, outputs)
+    if  eltype(predictions) <: Distribution
+        @test all(length.(predictions) .== size(outputs, 1))
+        @test all(length.(predictions) .> 1)
+    else
+        @test size(predictions, 1) == size(outputs, 1)
+        @test size(predictions, 1) > 1
+    end
 end
 
-function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput}, ::Type{DistributionPredictInput};
-    inputs=[MvNormal(5, m) for m in 1:5], outputs=rand(1, 5),
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-    @test size(predictions, 1) == 1
-end
-
-function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput}, ::Type{DistributionPredictInput};
-    inputs=[MvNormal(5, m) for m in 1:5], outputs=rand(2, 5),
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-end
-
-function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput}, ::Type{DistributionPredictInput};
-    inputs=[MvNormal(5, m) for m in 1:5], outputs=rand(1, 5),
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa AbstractVector{<:ContinuousUnivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
-end
-
-function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{DistributionPredictInput};
-    inputs=[MvNormal(5, m) for m in 1:5], outputs=rand(3, 5)
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
-end
-
-function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{SingleOutput}, ::Type{PointOrDistributionPredictInput};
-    inputs=rand(5, 5), outputs=rand(1, 5), distribution_inputs=[MvNormal(5, m) for m in 1:5],
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-    @test size(predictions, 1) == 1
-
+function test_predict_input_type(::Type{PointPredictInput}, template, predictions, outputs, inputs, distribution_inputs) 
     model = fit(template, outputs, inputs)
-    predictions = predict(model, distribution_inputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-    @test size(predictions, 1) == 1
+    @test hasmethod(Models.predict, (typeof(model), typeof(inputs)))
 end
 
-function test_interface(
-    template::Template, ::Type{PointEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionPredictInput};
-    inputs=rand(5, 5), outputs=rand(2, 5), distribution_inputs=[MvNormal(5, m) for m in 1:5],
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-
+function test_predict_input_type(::Type{PointOrDistributionPredictInput}, template, predictions, outputs, inputs, distribution_inputs)
     model = fit(template, outputs, inputs)
+    @test hasmethod(Models.predict, (typeof(model), typeof(distribution_inputs)))
     predictions = predict(model, distribution_inputs)
-    @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
-    @test size(predictions) == size(outputs)
-end
-
-function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{SingleOutput}, ::Type{PointOrDistributionPredictInput};
-    inputs=rand(5, 5), outputs=rand(1, 5), distribution_inputs=[MvNormal(5, m) for m in 1:5],
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa AbstractVector{<:ContinuousUnivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
-
-    model = fit(template, outputs, inputs)
-    predictions = predict(model, distribution_inputs)
-    @test predictions isa AbstractVector{<:ContinuousUnivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
-end
-
-function test_interface(
-    template::Template, ::Type{DistributionEstimate}, ::Type{MultiOutput}, ::Type{PointOrDistributionPredictInput};
-    inputs=rand(5, 5), outputs=rand(3, 5), distribution_inputs=[MvNormal(5, m) for m in 1:5],
-)
-    predictions = test_common(template, inputs, outputs)
-    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
-
-    model = fit(template, outputs, inputs)
-    predictions = predict(model, distribution_inputs)
-    @test predictions isa AbstractVector{<:ContinuousMultivariateDistribution}
-    @test length(predictions) == size(outputs, 2)
-    @test all(length.(predictions) .== size(outputs, 1))
+    test_estimate_type(estimate_type(template), predictions, outputs)
+    test_output_type(output_type(template), predictions, outputs)
 end
 
 function test_names(template, model)

@@ -74,7 +74,6 @@ Here are the current [`Model`](@ref) traits in use and their possible values:
    - [`MultiOutput`](@ref): Fits and predicts on multiple outputs at a time.
  - [`predict_input_type`](@ref) - determines which datatypes a [`Model`](@ref) can accept at predict time.
    - [`PointPredictInput`](@ref): Real valued input variables accepted at predict time.
-   - [`DistributionPredictInput`](@ref): Distributions over input variables accepted at predict time.
    - [`PointOrDistributionPredictInput`](@ref): Either real valued or distributions of input variables accepted at predict time.
 
 The traits always agree between the [`Model`](@ref) and the [`Template`](@ref).

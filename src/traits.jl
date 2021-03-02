@@ -63,8 +63,7 @@ output_type(T::Type) = throw(MethodError(output_type, (T,)))  # to prevent recur
     PredictInputTrait
 
 The `PredictInputTrait` specifies if the model supports point or distribution injections to predict,
-denoted by [`PointPredictInput`](@ref) or [`DistributionPredictInput`](@ref), respectively.  A model can
-also be implemented in such a way as to allow [`PointOrDistributionPredictInput`](@ref).
+denoted by [`PointPredictInput`](@ref) or [`PointOrDistributionPredictInput`](@ref).
 """
 abstract type PredictInputTrait end
 
@@ -74,13 +73,6 @@ abstract type PredictInputTrait end
 Specifies that the [`Model`](@ref) accepts real-valued input variables to `predict`.
 """
 abstract type PointPredictInput <: PredictInputTrait end
-
-"""
-    DistributionPredictInput <: PredictInputTrait
-
-Specifies that the [`Model`](@ref) accepts a distribution over the input variables to `predict`.
-"""
-abstract type DistributionPredictInput <: PredictInputTrait end
 
 """
     PointOrDistributionPredictInput <: PredictInputTrait
