@@ -160,14 +160,9 @@ function test_interface(
     end
 end
 
-function _default_outputs(template)
-    @assert(output_type(template) <: OutputTrait, "Invalid OutputTrait")
-    if output_type(template) == SingleOutput
-        return rand(1, 5)
-    else output_type(template) == MultiOutput
-        return rand(2, 5)
-    end
-end
+_default_outputs(template) = _default_outputs(output_type(template), template)
+_default_outputs(::Type{SingleOutput}, template) = rand(1, 5)
+_default_outputs(::Type{MultiOutput}, template) = rand(2, 5)
 
 function test_estimate_type(::Type{PointEstimate}, predictions, outputs)
     @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
