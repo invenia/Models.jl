@@ -160,9 +160,9 @@ function test_interface(
     end
 end
 
-_default_outputs(template) = _default_outputs(output_type(template), template)
-_default_outputs(::Type{SingleOutput}, template) = rand(1, 5)
-_default_outputs(::Type{MultiOutput}, template) = rand(2, 5)
+_default_outputs(template) = _default_outputs(output_type(template))
+_default_outputs(::Type{SingleOutput}) = rand(1, 5)
+_default_outputs(::Type{MultiOutput}) = rand(2, 5)
 
 function test_estimate_type(::Type{PointEstimate}, predictions, outputs)
     @test predictions isa NamedDimsArray{(:variates, :observations), <:Real, 2}
