@@ -29,5 +29,19 @@ struct DummyModel <: Model end
 
     end
 
+    @testset "PredictInputTrait" begin
+        
+        @testset "Default" begin
+            @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == PointPredictInput
+        end 
 
+        @testset "PointOrDistributionPredictInput is defined" begin
+            predict_input_type(m::Type{<:DummyTemplate}) = PointOrDistributionPredictInput
+            predict_input_type(m::Type{<:DummyModel}) = PointOrDistributionPredictInput
+            
+            @test predict_input_type(DummyTemplate) == 
+                predict_input_type(DummyModel) == 
+                PointOrDistributionPredictInput
+        end
+    end
 end

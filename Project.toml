@@ -1,7 +1,7 @@
 name = "Models"
 uuid = "e6388cff-ecff-480c-9b53-83211bf7812a"
 authors = ["Invenia Technical Computing Corporation"]
-version = "0.2.4"
+version = "0.2.5"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"

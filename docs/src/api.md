@@ -13,6 +13,7 @@ predict
 submodels
 estimate_type
 output_type
+predict_input_type
 ```
 
 ## Traits
@@ -23,4 +24,7 @@ DistributionEstimate
 OutputTrait
 SingleOutput
 MultiOutput
+PredictInputTrait
+PointPredictInput
+PointOrDistributionPredictInput
 ```
