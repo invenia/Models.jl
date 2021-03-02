@@ -147,16 +147,6 @@ StatsBase.predict(m::FakeModel, inputs::AbstractVector{<:Sampleable}) = m.predic
 Test that subtypes of [`Template`](@ref) and [`Model`](@ref) implement the expected API.
 Can be used as an initial test to verify the API has been correctly implemented.
 """
-function _default_outputs(template)
-    if output_type(template) == SingleOutput
-        return rand(1, 5)
-    elseif output_type(template) == MultiOutput
-        return rand(2, 5)
-    else
-        println("Invalid output trait")
-    end
-end
-
 function test_interface(
     template::Template; 
     inputs=rand(5,5), 
@@ -168,7 +158,16 @@ function test_interface(
         predictions = test_common(template, inputs, outputs)
         test_estimate_type(estimate_type(template), predictions, outputs)
         test_output_type(output_type(template), predictions, outputs)
-        test_predict_input_type(predict_input_type(template), template, predictions, outputs, inputs, distribution_inputs)
+        test_predict_input_type(predict_input_type(template), template, outputs, inputs, distribution_inputs)
+    end
+end
+
+function _default_outputs(template)
+    @assert(output_type(template) <: OutputTrait, "Invalid OutputTrait")
+    if output_type(template) == SingleOutput
+        return rand(1, 5)
+    else output_type(template) == MultiOutput
+        return rand(2, 5)
     end
 end
 
@@ -197,12 +196,12 @@ function test_output_type(::Type{MultiOutput}, predictions, outputs)
     end
 end
 
-function test_predict_input_type(::Type{PointPredictInput}, template, predictions, outputs, inputs, distribution_inputs) 
+function test_predict_input_type(::Type{PointPredictInput}, template, outputs, inputs, distribution_inputs) 
     model = fit(template, outputs, inputs)
     @test hasmethod(Models.predict, (typeof(model), typeof(inputs)))
 end
 
-function test_predict_input_type(::Type{PointOrDistributionPredictInput}, template, predictions, outputs, inputs, distribution_inputs)
+function test_predict_input_type(::Type{PointOrDistributionPredictInput}, template, outputs, inputs, distribution_inputs)
     model = fit(template, outputs, inputs)
     @test hasmethod(Models.predict, (typeof(model), typeof(distribution_inputs)))
     predictions = predict(model, distribution_inputs)

@@ -29,7 +29,7 @@ struct DummyModel <: Model end
 
     end
 
-    @testset "PredictInput Trait" begin
+    @testset "PredictInputTrait" begin
         
         @testset "Default" begin
             @test predict_input_type(DummyTemplate) == predict_input_type(DummyModel) == PointPredictInput
